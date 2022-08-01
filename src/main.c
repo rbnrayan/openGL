@@ -1,11 +1,18 @@
 /* Includes */
+// openGL includes
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+// GLM (matrices and vectors)
+#include <cglm/cglm.h>
+#include <cglm/mat4.h>
+#include <cglm/types.h>
+#include <cglm/util.h>
+// C includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../includes/shader.h"
 
+#include "../includes/shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "../includes/stb_image.h"
 
