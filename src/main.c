@@ -63,8 +63,8 @@ int main(void)
     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // top    left
   };
   uint indices[] = {
-    0, 1, 3,             // first triangle
-    1, 2, 3,             // second triangle
+    0, 1, 3,              // first triangle
+    1, 2, 3,              // second triangle
   };
   // triangle:
   // float vertices[] = {
@@ -106,10 +106,12 @@ int main(void)
 
   glBindVertexArray(0);
 
-  /* Texture */
-  uint texture;
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  /* Textures */
+  uint texture1, texture2;
+
+  // texture1
+  glGenTextures(1, &texture1);
+  glBindTexture(GL_TEXTURE_2D, texture1);
 
   // texture wrapping options
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -118,6 +120,8 @@ int main(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   int width, height, nrChannels;
+  // flip image
+  stbi_set_flip_vertically_on_load(TRUE);
   unsigned char *data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
   if (data)
   {
@@ -126,12 +130,38 @@ int main(void)
   }
   else
   {
-    fprintf(stderr, "Failed to load texture\n");
+    fprintf(stderr, "Failed to load texture (1)\n");
+  }
+  stbi_image_free(data);
+
+  // texture 2
+  glGenTextures(1, &texture2);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+
+  // texture wrapping options
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  data = stbi_load("textures/awesomeface.png", &width, &height, &nrChannels, 0);
+  if (data)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else
+  {
+    fprintf(stderr, "Failed to load texture (2)\n");
   }
   stbi_image_free(data);
 
   // Wireframe mode:
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  shaderUse(shader_program);
+  shaderSetInt(shader_program, "texture1", 0);
+  shaderSetInt(shader_program, "texture2", 1);
 
   /* Render Loop */
   while (!glfwWindowShouldClose(window))
@@ -142,8 +172,13 @@ int main(void)
     glClearColor(0.1f, 0.4f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // bind textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
     // draw vertices
-    glBindTexture(GL_TEXTURE_2D, texture);
     shaderUse(shader_program);
     glBindVertexArray(VAO);
     // glDrawArrays(GL_TRIANGLES, 0, 3);
